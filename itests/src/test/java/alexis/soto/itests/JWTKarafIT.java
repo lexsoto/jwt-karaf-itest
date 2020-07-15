@@ -1,18 +1,21 @@
 package alexis.soto.itests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.crypto.SecretKey;
 
 import org.apache.karaf.itests.KarafTestSupport;
 import org.junit.Test;
@@ -24,13 +27,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.CompressionCodecs;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -47,6 +43,18 @@ public class JWTKarafIT extends KarafTestSupport {
 
 		Option[] options = new Option[] {
 				junitBundles(),
+				features(maven()
+						.groupId("org.apache.karaf.features")
+						.artifactId("standard")
+						.type("xml")
+						.classifier("features")
+						.versionAsInProject(), "scr", "war"),
+				// JWT
+				bundle(maven()
+						.groupId("alexis.soto.itest")
+						.artifactId("jwt-karaf-client")
+						.versionAsInProject()
+						.getURL()),
 				bundle(maven()
 						.groupId("io.jsonwebtoken")
 						.artifactId("jjwt-api")
@@ -79,12 +87,7 @@ public class JWTKarafIT extends KarafTestSupport {
 						.versionAsInProject()
 						.getURL()),
 		};
-		Option[] result = combineOptions(super.config(), options);
-
-		log.info("Finished builing config options: " +
-				Stream.of(result).map((o -> o.toString())).collect(Collectors.toList()));
-
-		return result;
+		return combineOptions(super.config(), options);
 	}
 
 	protected Option[] combineOptions(Option[]... options) {
@@ -92,31 +95,22 @@ public class JWTKarafIT extends KarafTestSupport {
 	}
 
 	@Test
-	public void happyPath() {
+	public void happyPath() throws Exception {
 
-		Instant now = Instant.now();
-		Date from = Date.from(now);
-		Date to = Date.from(now.plus(Duration.ofMinutes(30)));
-		SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+		HttpClient client = HttpClient.newBuilder()
+				.version(Version.HTTP_1_1)
+				.followRedirects(Redirect.NORMAL)
+				.connectTimeout(Duration.ofSeconds(20))
+				.build();
 
-		String token = Jwts.builder()
-				.setId(UUID.randomUUID().toString())
-				.compressWith(CompressionCodecs.DEFLATE)
-				.setSubject("Tester")
-				.setIssuedAt(from)
-				.setExpiration(to)
-				.signWith(secretKey)
-				.compact();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://localhost:" + getHttpPort() + "/test"))
+				.build();
 
-		log.info("Generated token: {}", token);
+		HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+		log.info("Status: {}", response.statusCode());
+		log.info("Response: {}", response.body());
 
-		Jws<Claims> parsed = Jwts.parserBuilder()
-				.setSigningKey(secretKey)
-				.setAllowedClockSkewSeconds(5)
-				.build()
-				.parseClaimsJws(token);
-
-		log.info("Parsed token: {}", parsed);
-
+		assertEquals(200, response.statusCode());
 	}
 }

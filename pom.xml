@@ -3,8 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>alexis.soto.itest</groupId>
-	<artifactId>jwt-karaf-itests</artifactId>
+	<artifactId>jwt-karaf</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,173 +19,249 @@
 		<javase>11</javase>
 		<awaitility.version>3.1.6</awaitility.version>
 		<osgi.version>6.0.0</osgi.version>
+		<javax-servlet-api-version>3.1.0</javax-servlet-api-version>
 	</properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>osgi.core</artifactId>
-			<scope>provided</scope>
-			<version>${osgi.version}</version>
-		</dependency>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>osgi.core</artifactId>
+				<scope>provided</scope>
+				<version>${osgi.version}</version>
+			</dependency>
+		
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>osgi.cmpn</artifactId>
+				<version>${osgi.version}</version>
+			</dependency>
 
-		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>javax.annotation-api</artifactId>
-			<version>1.3.1</version>
-			<scope>test</scope>
-		</dependency>
+			<dependency>
+				<groupId>javax.annotation</groupId>
+				<artifactId>javax.annotation-api</artifactId>
+				<version>1.3.1</version>
+				<scope>test</scope>
+			</dependency>
+			
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>${javax-servlet-api-version}</version>
+			</dependency>
+			
 
-		<dependency>
-			<groupId>org.apache.karaf.itests</groupId>
-			<artifactId>common</artifactId>
-			<version>${karaf.version}</version>
-			<scope>test</scope>
-		</dependency>
+			<dependency>
+				<groupId>org.apache.karaf.itests</groupId>
+				<artifactId>common</artifactId>
+				<version>${karaf.version}</version>
+				<scope>test</scope>
+			</dependency>
 
-		<dependency>
-			<groupId>org.apache.karaf</groupId>
-			<artifactId>apache-karaf</artifactId>
-			<version>${karaf.version}</version>
-			<scope>test</scope>
-			<type>tar.gz</type>
-			<exclusions>
-				<exclusion>
-					<artifactId>*</artifactId>
-					<groupId>*</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+			<dependency>
+				<groupId>org.apache.karaf</groupId>
+				<artifactId>apache-karaf</artifactId>
+				<version>${karaf.version}</version>
+				<scope>test</scope>
+				<type>tar.gz</type>
+				<exclusions>
+					<exclusion>
+						<artifactId>*</artifactId>
+						<groupId>*</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.12</version>
-			<scope>test</scope>
-		</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.12</version>
+				<scope>test</scope>
+			</dependency>
 
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-container-karaf</artifactId>
-			<version>${pax.exam.version}</version>
-			<scope>test</scope>
-		</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-container-karaf</artifactId>
+				<version>${pax.exam.version}</version>
+				<scope>test</scope>
+			</dependency>
 
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-junit4</artifactId>
-			<version>${pax.exam.version}</version>
-			<scope>test</scope>
-		</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-junit4</artifactId>
+				<version>${pax.exam.version}</version>
+				<scope>test</scope>
+			</dependency>
 
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-atinject_1.0_spec</artifactId>
-			<version>1.1</version>
-			<scope>test</scope>
-		</dependency>
+			<dependency>
+				<groupId>org.apache.geronimo.specs</groupId>
+				<artifactId>geronimo-atinject_1.0_spec</artifactId>
+				<version>1.1</version>
+				<scope>test</scope>
+			</dependency>
 
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.hamcrest</artifactId>
-			<version>1.3_1</version>
-			<scope>runtime</scope>
-		</dependency>
+			<dependency>
+				<groupId>org.apache.servicemix.bundles</groupId>
+				<artifactId>org.apache.servicemix.bundles.hamcrest</artifactId>
+				<version>1.3_1</version>
+				<scope>runtime</scope>
+			</dependency>
 
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>${jjwt.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>${jjwt.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>${jjwt.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.awaitility</groupId>
-			<artifactId>awaitility</artifactId>
-			<version>${awaitility.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-api</artifactId>
+				<version>${jjwt.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-impl</artifactId>
+				<version>${jjwt.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
+				<version>${jjwt.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.awaitility</groupId>
+				<artifactId>awaitility</artifactId>
+				<version>${awaitility.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel.karaf</groupId>
+				<artifactId>apache-camel</artifactId>
+				<classifier>features</classifier>
+				<type>xml</type>
+				<version>${camel.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.envieta.qflexna</groupId>
+				<artifactId>qflexna-feature</artifactId>
+				<version>1.0.0-SNAPSHOT</version>
+				<type>xml</type>
+				<classifier>features</classifier>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.servicemix.tooling</groupId>
+					<artifactId>depends-maven-plugin</artifactId>
+					<version>1.4.0</version>
+					<executions>
+						<execution>
+							<id>generate-depends-file</id>
+							<goals>
+								<goal>generate-depends-file</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.22.0</version>
+					<configuration>
+						<forkCount>1</forkCount>
+						<reuseForks>false</reuseForks>
+						<rerunFailingTestsCount>0</rerunFailingTestsCount>
+						<systemPropertyVariables>
+							<!-- need karaf.version to properly add endorsed libraries in java > 9 -->
+							<karaf.version>${karaf.version}</karaf.version>
+						</systemPropertyVariables>
+						<includes>
+							<include>**/*IT.java</include>
+						</includes>
+						<trimStackTrace>false</trimStackTrace>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>integration-test</goal>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.servicemix.tooling</groupId>
-				<artifactId>depends-maven-plugin</artifactId>
-				<version>1.4.0</version>
-				<executions>
-					<execution>
-						<id>generate-depends-file</id>
-						<goals>
-							<goal>generate-depends-file</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.22.0</version>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<version>5.1.0</version>
 				<configuration>
-					<forkCount>1</forkCount>
-					<reuseForks>false</reuseForks>
-					<rerunFailingTestsCount>0</rerunFailingTestsCount>
-					<systemPropertyVariables>
-						<!-- need karaf.version to properly add endorsed libraries in java > 9 -->
-						<karaf.version>${karaf.version}</karaf.version>
-					</systemPropertyVariables>
-					<includes>
-						<include>**/*IT.java</include>
-					</includes>
-					 <trimStackTrace>false</trimStackTrace>
+					<bnd><![CDATA[-contract: *
+                        -plugin.spring: aQute.lib.spring.SpringXMLType
+                        ]]></bnd>
 				</configuration>
 				<executions>
 					<execution>
 						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
+							<goal>bnd-process</goal>
 						</goals>
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Required to make the maven-jar-plugin pick up the bnd generated manifest. Also avoid packaging empty Jars -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+					<skipIfEmpty>true</skipIfEmpty>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
+
+	<modules>
+		<module>client</module>
+		<module>itests</module>
+	</modules>
 </project>
